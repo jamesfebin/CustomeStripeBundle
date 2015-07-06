@@ -1,0 +1,8 @@
+services:
+     customer_stripe.listener:
+         class: Customer\Bundle\StripeBundle\EventListener\StripeWebhookListener
+         arguments: [@logger]
+         tags:
+             - { name: kernel.event_subscriber }
+             - { name: kernel.event_listener, event: customer_stripe.generic, method: onGenericWebhookEvent }
+

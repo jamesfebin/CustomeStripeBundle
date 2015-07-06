@@ -1,0 +1,3 @@
+customer_stripe_default:
+    path:     /stripe-webhooks
+    defaults: { _controller: CustomerStripeBundle:Default:index }
