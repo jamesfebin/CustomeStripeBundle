@@ -11,6 +11,8 @@ class StripeWebhookEvent extends Event implements StripeWebhookEventInterface
      *
      * @var string
      */
+    protected $user_id;
+    /** @var string */
     protected $event_name;
     /** @var string */
     protected $response;
@@ -18,10 +20,11 @@ class StripeWebhookEvent extends Event implements StripeWebhookEventInterface
      * @param $event_name string Stripe Event name
      * @param $response string Stripe response
      */
-    public function __construct($event_name, $response)
+    public function __construct($event_name, $response, $user_id)
     {
         $this->event_name = $event_name;
         $this->response   = $response;
+        $this->user_id = $user_id;
     }
     /**
      * @return string
@@ -37,4 +40,12 @@ class StripeWebhookEvent extends Event implements StripeWebhookEventInterface
     {
         return $this->response;
     }
+    /**
+     * @return string
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
 }
