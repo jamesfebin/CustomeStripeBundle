@@ -1,4 +1,6 @@
 customer_stripe_default:
     path:     /stripe-webhooks
     defaults: { _controller: CustomerStripeBundle:Default:index }
-
+customer_get_subscriptions:
+    path:     /customer-subscriptions
+    defaults: { _controller: CustomerStripeBundle:Default:subscriptions }
