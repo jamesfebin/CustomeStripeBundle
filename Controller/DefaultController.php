@@ -23,12 +23,12 @@ class DefaultController extends ContainerAware
 
         $this->container->get('event_dispatcher')->dispatch(
             'customer_stripe.generic',
-            new StripeWebhookEvent($event, $content,$user_id)
+            new StripeWebhookEvent($event, $content, $user_id)
         );
 
         $this->container->get('event_dispatcher')->dispatch(
-            'customer_stripe.'. $event,
-            new StripeWebhookEvent($event, $content,$user_id)
+            'customer_stripe.' . $event,
+            new StripeWebhookEvent($event, $content, $user_id)
         );
 
         return new Response('ok', 200);
@@ -39,54 +39,61 @@ class DefaultController extends ContainerAware
     {
         try {
             $customer_id = $request->query->get('customer_id');
-            $limit = $request->query->get('limit') ? $request->query->get('limit'): 10;
-            $starting_after = $request->query->get('starting_after') ? $request->query->get('starting_after'): -1 ;
-            $ending_after = $request->query->get('ending_after') ? $request->query->get('ending_after'): -1;
+            $limit = $request->query->get('limit') ? $request->query->get('limit') : 10;
+            $starting_after = $request->query->get('starting_after') ? $request->query->get('starting_after') : -1;
+            $ending_before = $request->query->get('ending_before') ? $request->query->get('ending_before') : -1;
 
-            $request_array = array("limit"=>$limit);
-            if($starting_after != -1)
-            {
+            $request_array = array("limit" => $limit);
+            if ($starting_after != -1) {
                 $request_array["starting_after"] = $starting_after;
             }
-            if($ending_after != -1)
-            {
-                $request_array["ending_after"] = $ending_after;
+            if ($ending_before != -1) {
+                $request_array["ending_before"] = $ending_before;
             }
 
             \Stripe\Stripe::setApiKey("Input User API KEY HERE");
             $response = \Stripe\Customer::retrieve($customer_id)->subscriptions->all($request_array);
             $subscriptions = array();
-            $i=0;
+            $i = 0;
             foreach ($response['data'] as $subscription) {
-                $subscription_item = array("id"=>$subscription['id'], "created"=>$subscription['plan']['created'], "status"=>$subscription['status']);
-                $subscriptions[$i]=$subscription_item;
+                $subscription_item = array(
+                    "id" => $subscription['id'],
+                    "created" => $subscription['plan']['created'],
+                    "status" => $subscription['status']
+                );
+                $subscriptions[$i] = $subscription_item;
                 $i++;
             }
             $subscriptions = json_encode($subscriptions);
 
         } catch (\Stripe\Error\ApiConnection $e) {
             // Network communication with Stripe failed
-            $error= array("error"=>"Connection Error");
-            return new Response(json_encode($error),422);
-        } catch(\Stripe\Error\Authentication $e)
-        {
+            $error = array("error" => "Connection Error");
+
+            return new Response(json_encode($error), 422);
+        } catch (\Stripe\Error\Authentication $e) {
             // Authentication with Stripe's API failed
-            $error= array("error"=>"Invalid API Key");
+            $error = array("error" => "Invalid API Key");
+
             return new Response(json_encode($error), 422);
         } catch (\Stripe\Error\InvalidRequest $e) {
             // Invalid parameters were supplied to Stripe's API
-            $error= array("error"=>"Invalid Request");
+            $error = array("error" => "Invalid Request");
+
             return new Response(json_encode($error), 422);
         } catch (\Stripe\Error\Base $e) {
             // Display a very generic error to the user, and maybe send
-            $error= array("error"=>$e);
-            return new Response(json_encode($error),422);
+            $error = array("error" => $e);
+
+            return new Response(json_encode($error), 422);
         } catch (Exception $e) {
             // Something else happened, completely unrelated to Stripe
-            $error= array("error"=>$e);
-            return new Response(json_encode($error),422);
+            $error = array("error" => $e);
+
+            return new Response(json_encode($error), 422);
         }
 
         return new Response($subscriptions, 200);
     }
+
 }
