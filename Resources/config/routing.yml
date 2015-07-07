@@ -4,3 +4,6 @@ customer_stripe_default:
 customer_get_subscriptions:
     path:     /customer-subscriptions
     defaults: { _controller: CustomerStripeBundle:Default:subscriptions }
+customer_get_invoices:
+    path:     /customer-invoices
+    defaults: { _controller: CustomerStripeBundle:Default:invoices }
